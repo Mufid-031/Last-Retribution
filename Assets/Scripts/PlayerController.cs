@@ -5,7 +5,6 @@ public class PlayerController : MonoBehaviour
     public float speed = 5f;
 
     private Rigidbody2D rb;
-    private Animator legsAnimator;
     private Animator bodyAnimator;
     private SpriteRenderer spriteBody;
 
@@ -13,14 +12,14 @@ public class PlayerController : MonoBehaviour
     private bool isShooting;
     private bool isJumping;
     private bool isCrounching;
+    private bool isMelee;
+    private bool isLookUp;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-
         bodyAnimator = transform.Find("Body").GetComponent<Animator>();
-
         spriteBody = transform.Find("Body").GetComponent<SpriteRenderer>();
     }
 
@@ -29,11 +28,11 @@ public class PlayerController : MonoBehaviour
     {
         moveInput = Input.GetAxisRaw("Horizontal");
 
-        rb.linearVelocity = new Vector2(moveInput * speed, rb.linearVelocity.y);
-
-        bool isRunning = moveInput != 0;
-
-        bodyAnimator.SetBool("isRunning", isRunning);
+        if (!isCrounching) {
+            rb.linearVelocity = new Vector2(moveInput * speed, rb.linearVelocity.y);
+            bool isRunning = moveInput != 0;
+            bodyAnimator.SetBool("isRunning", isRunning);
+        }
 
         if (moveInput > 0) {
             spriteBody.flipX = false;
@@ -44,13 +43,19 @@ public class PlayerController : MonoBehaviour
         isShooting = Input.GetKey(KeyCode.J);
         bodyAnimator.SetBool("isShooting", isShooting);
 
-        isCrounching = Input.GetKey(KeyCode.LeftControl);
+        isCrounching = Input.GetKey(KeyCode.S);
         bodyAnimator.SetBool("isCrounching", isCrounching);
+
+        isLookUp = Input.GetKey(KeyCode.W);
+        bodyAnimator.SetBool("isLookUp", isLookUp);
+
+        isMelee = Input.GetKey(KeyCode.K);
+        bodyAnimator.SetBool("isMelee", isMelee);
 
         float vertical = Input.GetAxisRaw("Vertical");
         bodyAnimator.SetFloat("aimVertical", vertical);
 
-        if (Input.GetKeyDown(KeyCode.Space)) { 
+        if (Input.GetKeyDown(KeyCode.Space) && !isJumping) { 
             rb.linearVelocity = new Vector2 (rb.linearVelocity.x, 7f);
             isJumping = true;
             bodyAnimator.SetBool("isJumping", true);
