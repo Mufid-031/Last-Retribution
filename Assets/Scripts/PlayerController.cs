@@ -15,6 +15,12 @@ public class PlayerController : MonoBehaviour
     private bool isMelee;
     private bool isLookUp;
 
+    public GameObject bulletPrefab;
+    public Transform firePoint;
+
+    public float fireRate = 0.2f;
+    private float nextFire = 0f;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
@@ -35,9 +41,9 @@ public class PlayerController : MonoBehaviour
         }
 
         if (moveInput > 0) {
-            spriteBody.flipX = false;
-        } else if (moveInput < 0) { 
-            spriteBody.flipX = true;
+            transform.localScale = new Vector3(1, 1, 1);
+        } else if (moveInput < 0) {
+            transform.localScale = new Vector3(-1, 1, 1);
         }
 
         isShooting = Input.GetKey(KeyCode.J);
@@ -60,10 +66,25 @@ public class PlayerController : MonoBehaviour
             isJumping = true;
             bodyAnimator.SetBool("isJumping", true);
         }
+
+        if (isShooting && Time.time > nextFire) {
+            Shoot();
+            nextFire = Time.time + fireRate;
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision) {
         isJumping = false;
         bodyAnimator.SetBool("isJumping", false);
+    }
+
+    void Shoot() {
+        float dir = transform.localScale.x > 0 ? 0f : 180f;
+
+        Instantiate(
+            bulletPrefab,
+            firePoint.position,
+            Quaternion.Euler(0, 0, dir)
+        );
     }
 }
